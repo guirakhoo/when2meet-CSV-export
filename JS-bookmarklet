@@ -1,30 +1,78 @@
-javascript: (function() {
-  const peopleMap = {};
-  for (let i = 0; i < PeopleIDs.length; i++) {
-    peopleMap[PeopleIDs[i]] = PeopleNames[i];
-  }
-  const nameAtSlot = AvailableAtSlot.map(e => e.map(i => peopleMap[i]));
-  const timedNames = TimeOfSlot.map((e, i) => [myShowSlot(e), nameAtSlot[i]]);
+javascript: function myShowSlot(Time, TimeString = "") {
+        var e = document.getElementById("ParticipantTimeZone");
+        var timezone = e[e.selectedIndex].value;
 
-  let csv = "Time," + PeopleIDs.map(id => peopleMap[id]).join(",") + "\n";
-  for (let i = 0; i < timedNames.length; i++) {
-    csv += timedNames[i][0] + ",";
-    for (let j = 0; j < PeopleIDs.length; j++) {
-      csv += timedNames[i][1].includes(peopleMap[PeopleIDs[j]]) ? "1" : "0";
-      if (j !== PeopleIDs.length - 1) {
-        csv += ",";
-      }
+        if (isNaN(Time) || (Time == 0)) {
+            document.getElementById("AvailableDate").innerHTML = "&nbsp;";
+            document.getElementById("Available").innerHTML = "";
+            document.getElementById("Unavailable").innerHTML = "";
+            document.getElementById("AvailableFraction").innerHTML = "0/" + AvailableIDs.length;
+            return;
+        }
+
+        var AvailableList = "";
+        var UnavailableList = "";
+        var AvailableCount = 0;
+        var Count = 0;
+        for (var i = 0; i < AvailableIDs.length; i++) {
+            Count++;
+            var found = (-1 != AvailableAtSlot[TimeOfSlot.indexOf(Time)].indexOf(AvailableIDs[i]));
+            if (found) {
+                AvailableList += PeopleNames[PeopleIDs.indexOf(AvailableIDs[i])] + "<br>";
+                AvailableCount++;
+            } else
+                UnavailableList += PeopleNames[PeopleIDs.indexOf(AvailableIDs[i])] + "<br>";
+        }
+        document.getElementById("Available").innerHTML = AvailableList;
+        document.getElementById("Unavailable").innerHTML = UnavailableList;
+        document.getElementById("AvailableFraction").innerHTML = AvailableCount + "/" + Count;
+
+        var date = new Date(Time * 1000);
+
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var monthName = monthNames[moment.tz(date, timezone).format('M') - 1];
+
+        var dayOfWeekNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        var dayOfWeekName = dayOfWeekNames[moment.tz(date, timezone).format('e')];
+
+        var dayOfMonth = moment.tz(date, timezone).format('D');
+
+        var hours = moment.tz(date, timezone).format('H');
+        var suffix = "am";
+        if (hours >= 12) suffix = "pm";
+        if (hours > 12) hours = hours - 12;
+        if (hours == 0) hours = 12;
+        var minutes = moment.tz(date, timezone).format('mm');
+        var year = moment.tz(date, timezone).format('YYYY');
+        var timeString = hours + ':' + minutes.substr(-2) + " " + suffix;
+
+        document.getElementById("AvailableDate").innerHTML = dayOfWeekName + ' ' + timeString;
     }
-    csv += "\n";
-  }
+    (function() {
+        const peopleMap = {};
+        for (let i = 0; i < PeopleIDs.length; i++) {
+            peopleMap[PeopleIDs[i]] = PeopleNames[i];
+        }
+        const nameAtSlot = AvailableAtSlot.map(e => e.map(i => peopleMap[i]));
+        const timedNames = TimeOfSlot.map((e, i) => [myShowSlot(e), nameAtSlot[i]]);
 
-  const date = new Date();
-  const formattedDate = date.toLocaleString().replace(/\//g, "-").replace(/,/g, "").replace(/:/g, "-");
-  const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `when2meet-export-${formattedDate}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-})();
+        let csv = "Time," + PeopleIDs.map(id => peopleMap[id]).join(",") + "\n";
+        for (let i = 0; i < timedNames.length; i++) {
+            csv += timedNames[i][0] + ",";
+            for (let j = 0; j < PeopleIDs.length; j++) {
+                csv += timedNames[i][1].includes(peopleMap[PeopleIDs[j]]) ? "1" : "0";
+                if (j !== PeopleIDs.length - 1) {
+                    csv += ",";
+                }
+            }
+            csv += "\n";
+        }
+        const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `when2meet-export.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    })();
