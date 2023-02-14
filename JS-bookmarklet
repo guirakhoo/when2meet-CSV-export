@@ -3,29 +3,8 @@ javascript: function myShowSlot(Time, TimeString = "") {
         var timezone = e[e.selectedIndex].value;
 
         if (isNaN(Time) || (Time == 0)) {
-            document.getElementById("AvailableDate").innerHTML = "&nbsp;";
-            document.getElementById("Available").innerHTML = "";
-            document.getElementById("Unavailable").innerHTML = "";
-            document.getElementById("AvailableFraction").innerHTML = "0/" + AvailableIDs.length;
-            return;
+            return "";
         }
-
-        var AvailableList = "";
-        var UnavailableList = "";
-        var AvailableCount = 0;
-        var Count = 0;
-        for (var i = 0; i < AvailableIDs.length; i++) {
-            Count++;
-            var found = (-1 != AvailableAtSlot[TimeOfSlot.indexOf(Time)].indexOf(AvailableIDs[i]));
-            if (found) {
-                AvailableList += PeopleNames[PeopleIDs.indexOf(AvailableIDs[i])] + "<br>";
-                AvailableCount++;
-            } else
-                UnavailableList += PeopleNames[PeopleIDs.indexOf(AvailableIDs[i])] + "<br>";
-        }
-        document.getElementById("Available").innerHTML = AvailableList;
-        document.getElementById("Unavailable").innerHTML = UnavailableList;
-        document.getElementById("AvailableFraction").innerHTML = AvailableCount + "/" + Count;
 
         var date = new Date(Time * 1000);
 
@@ -47,7 +26,7 @@ javascript: function myShowSlot(Time, TimeString = "") {
         var year = moment.tz(date, timezone).format('YYYY');
         var timeString = hours + ':' + minutes.substr(-2) + " " + suffix;
 
-        document.getElementById("AvailableDate").innerHTML = dayOfWeekName + ' ' + timeString;
+        return timeString;
     }
     (function() {
         const peopleMap = {};
