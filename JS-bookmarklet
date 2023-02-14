@@ -1,0 +1,30 @@
+javascript: (function() {
+  const peopleMap = {};
+  for (let i = 0; i < PeopleIDs.length; i++) {
+    peopleMap[PeopleIDs[i]] = PeopleNames[i];
+  }
+  const nameAtSlot = AvailableAtSlot.map(e => e.map(i => peopleMap[i]));
+  const timedNames = TimeOfSlot.map((e, i) => [myShowSlot(e), nameAtSlot[i]]);
+
+  let csv = "Time," + PeopleIDs.map(id => peopleMap[id]).join(",") + "\n";
+  for (let i = 0; i < timedNames.length; i++) {
+    csv += timedNames[i][0] + ",";
+    for (let j = 0; j < PeopleIDs.length; j++) {
+      csv += timedNames[i][1].includes(peopleMap[PeopleIDs[j]]) ? "1" : "0";
+      if (j !== PeopleIDs.length - 1) {
+        csv += ",";
+      }
+    }
+    csv += "\n";
+  }
+
+  const date = new Date();
+  const formattedDate = date.toLocaleString().replace(/\//g, "-").replace(/,/g, "").replace(/:/g, "-");
+  const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `when2meet-export-${formattedDate}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+})();
