@@ -11,3 +11,5 @@ A string is built in CSV format, with the row headers being "Time" followed by t
 The CSV is timestamped and exported. 
 
 Some issues can occur if you have a popup blocker active, just disable it temporarily and it should work fine.
+
+Inspired by code from @lihengcao and @camtheman256
